@@ -51,10 +51,13 @@ async function loadAllProducts() {
   const catalog = document.querySelector(".catalog");
 
   arrayOfAllProducts = await fetch("https://makeup-api.herokuapp.com/api/v1/products.json").then(r => r.json());
+  captureBrandFilterChange()
+  captureTypeFilterChange()
+  captureSortType()
 
-  console.log(filterByBrand(arrayOfAllProducts, "colourpop"))
-
+  
 }
+
 function filterByBrand(array, productBrand){
 return array.filter((p) => {
   return p.brand === productBrand
@@ -74,10 +77,6 @@ function sortByRating(array) {
     
   })
   
-}
-
-function calculatePrice(price) {
-return (parseFloat(price) * 5.50).toFixed(2)
 }
 
 function sortByHigherPrice(array) {
@@ -125,6 +124,37 @@ function sortByZA(array) {
 
     return 0
 
+  })
+}
+
+function calculatePrice(price) {
+  return (parseFloat(price) * 5.50).toFixed(2)
+}
+
+function captureBrandFilterChange() {
+  const filterBrandElement = document.getElementById("filter-brand");
+  filterBrandElement.addEventListener("change", () => {
+    const selectedBrand = filterBrandElement.value;
+    const productsByBrand = filterByBrand([...arrayOfAllProducts], selectedBrand);
+    console.log(productsByBrand)
+})
+}
+
+function captureTypeFilterChange() {
+  const filterTypeElement = document.getElementById("filter-type");
+  filterTypeElement.addEventListener("change", () => {
+    const selectType = filterTypeElement.value.toLowerCase();
+    const productsByType = filterByType([...arrayOfAllProducts], selectType);
+    console.log(productsByType)
+  })
+}
+
+function captureSortType() {
+  const sortTypeElement = document.getElementById("sort-type");
+  sortTypeElement.addEventListener("change", () => {
+    const sortType = sortTypeElement.value;
+
+    console.log(sortType)
   })
 }
 
