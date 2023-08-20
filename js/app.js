@@ -1,3 +1,5 @@
+const BASE_URL = "https://makeup-api.herokuapp.com/api/v1/products.json"
+
 //EXEMPLO DO CÓDIGO PARA UM PRODUTO
 function productItem(product) {
   const item = `<div class="product" data-name="NYX Mosaic Powder Blush Paradise" data-brand="nyx" data-type="bronzer" tabindex="508">
@@ -42,3 +44,82 @@ function loadDetails(product) {
         </div>
       </div></section>`;
 }
+let arrayOfAllProducts;
+
+async function loadAllProducts() {
+
+  const catalog = document.querySelector(".catalog");
+
+  arrayOfAllProducts = await fetch("https://makeup-api.herokuapp.com/api/v1/products.json").then(r => r.json());
+
+}
+
+function filterByType(array, productType) {
+  return array.filter((e) => {
+    return e.product_type === productType
+  })
+}
+
+function sortByRating(array) {
+  return array.sort((p1, p2) => {
+   
+    return p2.rating - p1.rating
+    
+  })
+  
+}
+
+function calculatePrice(price) {
+return (parseFloat(price) * 5.50).toFixed(2)
+}
+
+function sortByHigherPrice(array) {
+  return array.sort((p1, p2) => {
+    return p2.price - p1.price
+  })
+}
+
+function sortByLowerPrice(array) {
+  return array.sort((p1, p2) => {
+    return p1.price - p2.price
+  })
+}
+
+function sortByAZ(array) {
+  return array.sort((p1, p2) => {
+    const nameP1 = p1.name.toLowerCase();
+    const nameP2 = p2.name.toLowerCase();
+
+    if (nameP1 < nameP2) {
+      return -1
+    }
+
+    if (nameP2 < nameP1) {
+      return 1
+    }
+
+    return 0
+
+  })
+}
+
+function sortByZA(array) {
+  return array.sort((p1, p2) => {
+    const nameP1 = p1.name.toLowerCase();
+    const nameP2 = p2.name.toLowerCase();
+
+    if (nameP1 > nameP2) {
+      return -1
+    }
+
+    if (nameP2 > nameP1) {
+      return 1
+    }
+
+    return 0
+
+  })
+}
+
+loadAllProducts()
+
