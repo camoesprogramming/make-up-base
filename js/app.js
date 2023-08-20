@@ -1,5 +1,3 @@
-const BASE_URL = "https://makeup-api.herokuapp.com/api/v1/products.json"
-
 //EXEMPLO DO CÓDIGO PARA UM PRODUTO
 function productItem(product) {
   const item = `<div class="product" data-name="NYX Mosaic Powder Blush Paradise" data-brand="nyx" data-type="bronzer" tabindex="508">
@@ -13,6 +11,7 @@ function productItem(product) {
   </section>
   // CARREGAR OS DETALHES
 </div>`;
+return item;
 }
 
 //EXEMPLO DO CÓDIGO PARA OS DETALHES DE UM PRODUTO
@@ -43,20 +42,30 @@ function loadDetails(product) {
           <div class="details-bar-bg" style="width= 250">bronzer</div>
         </div>
       </div></section>`;
+      return details
 }
 let arrayOfAllProducts;
+let filteredArray;
 
 async function loadAllProducts() {
 
   const catalog = document.querySelector(".catalog");
 
   arrayOfAllProducts = await fetch("https://makeup-api.herokuapp.com/api/v1/products.json").then(r => r.json());
-  captureBrandFilterChange()
-  captureTypeFilterChange()
-  captureSortType()
+  arrayOfAllProducts = sortByRating(arrayOfAllProducts)
+  captureBrandFilterChange();
+  captureTypeFilterChange();
+  captureSortType();
+  filteredArray = [...arrayOfAllProducts];
+  // arrayOfAllProducts.forEach(element => {
+  //   catalog.innerHTML += productItem(element)
+  // });
 
-  
 }
+
+let selectedBrand;
+let selectedType;
+let selectedSortType;
 
 function filterByBrand(array, productBrand){
 return array.filter((p) => {
@@ -131,32 +140,69 @@ function calculatePrice(price) {
   return (parseFloat(price) * 5.50).toFixed(2)
 }
 
+
 function captureBrandFilterChange() {
   const filterBrandElement = document.getElementById("filter-brand");
   filterBrandElement.addEventListener("change", () => {
-    const selectedBrand = filterBrandElement.value;
-    const productsByBrand = filterByBrand([...arrayOfAllProducts], selectedBrand);
-    console.log(productsByBrand)
+    selectedBrand = filterBrandElement.value;
+    filterArray()
+    
 })
 }
 
 function captureTypeFilterChange() {
   const filterTypeElement = document.getElementById("filter-type");
   filterTypeElement.addEventListener("change", () => {
-    const selectType = filterTypeElement.value.toLowerCase();
-    const productsByType = filterByType([...arrayOfAllProducts], selectType);
-    console.log(productsByType)
+    selectedType = filterTypeElement.value.toLowerCase();
+    filterArray()
+    
   })
 }
 
 function captureSortType() {
   const sortTypeElement = document.getElementById("sort-type");
   sortTypeElement.addEventListener("change", () => {
-    const sortType = sortTypeElement.value;
-
-    console.log(sortType)
+    selectedSortType = sortTypeElement.value;
+    filterArray()
+    
   })
 }
 
-loadAllProducts()
+function filterArray() {
+  filteredArray = [...arrayOfAllProducts];
+  if (selectedBrand !== "todos" && selectedBrand !== undefined) {
+    filteredArray = filterByBrand(filteredArray, selectedBrand)
+  }
 
+  if (selectedType !== "todos" && selectedType !== undefined) {
+    filteredArray = filterByType(filteredArray, selectedType)
+  }
+
+  if (selectedSortType !== "Melhor Avaliados" && selectedSortType !== undefined) {
+    switch (selectedSortType) {
+      case "Menores Preços":
+        filteredArray = sortByLowerPrice(filteredArray)
+        break;
+      case "Maiores Preços":
+        filteredArray = sortByHigherPrice(filteredArray)
+        break;
+      case "A-Z":
+        filteredArray = sortByAZ(filteredArray)
+        break;
+      case "Z-A":
+        filteredArray = sortByZA(filteredArray)
+        break;
+      default:
+        filteredArray = sortByRating(filteredArray)
+    }
+    
+  }
+
+  console.log(filteredArray)
+  const catalog = document.querySelector(".catalog");
+
+  
+}
+
+
+loadAllProducts()
