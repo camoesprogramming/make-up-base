@@ -52,6 +52,13 @@ async function loadAllProducts() {
 
   arrayOfAllProducts = await fetch("https://makeup-api.herokuapp.com/api/v1/products.json").then(r => r.json());
 
+  console.log(filterByBrand(arrayOfAllProducts, "colourpop"))
+
+}
+function filterByBrand(array, productBrand){
+return array.filter((p) => {
+  return p.brand === productBrand
+})
 }
 
 function filterByType(array, productType) {
