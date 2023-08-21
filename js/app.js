@@ -1,71 +1,40 @@
-//EXEMPLO DO CÓDIGO PARA UM PRODUTO
-function productItem(product) {
-  const item = `<div class="product" data-name="NYX Mosaic Powder Blush Paradise" data-brand="nyx" data-type="bronzer" tabindex="508">
-  <figure class="product-figure">
-    <img src="https://d3t32hsnjxo7q6.cloudfront.net/i/deedb7bd74bda43f062a09aab2ee1ec8_ra,w158,h184_pa,w158,h184.png" width="215" height="215" alt="NYX Mosaic Powder Blush Paradise" onerror="javascript:this.src='img/unavailable.png'">
-  </figure>
-  <section class="product-description">
-    <h1 class="product-name">NYX Mosaic Powder Blush Paradise</h1>
-    <div class="product-brands"><span class="product-brand background-brand">Nyx</span>
-<span class="product-brand background-price">R$ 57.70</span></div>
-  </section>
-  // CARREGAR OS DETALHES
-</div>`;
-return item;
-}
-
-//EXEMPLO DO CÓDIGO PARA OS DETALHES DE UM PRODUTO
-function loadDetails(product) {
-  let details = `<section class="product-details"><div class="details-row">
-        <div>Brand</div>
-        <div class="details-bar">
-          <div class="details-bar-bg" style="width= 250">nyx</div>
-        </div>
-      </div><div class="details-row">
-        <div>Price</div>
-        <div class="details-bar">
-          <div class="details-bar-bg" style="width= 250">10.49</div>
-        </div>
-      </div><div class="details-row">
-        <div>Rating</div>
-        <div class="details-bar">
-          <div class="details-bar-bg" style="width= 250">5</div>
-        </div>
-      </div><div class="details-row">
-        <div>Category</div>
-        <div class="details-bar">
-          <div class="details-bar-bg" style="width= 250"></div>
-        </div>
-      </div><div class="details-row">
-        <div>Product_type</div>
-        <div class="details-bar">
-          <div class="details-bar-bg" style="width= 250">bronzer</div>
-        </div>
-      </div></section>`;
-      return details
-}
+// Criamos duas variávei pra armazenar as arrays que vamos receber com o fetch da url
 let arrayOfAllProducts;
 let filteredArray;
 
+// criamos a função para rodar após iniciar a página
 async function loadAllProducts() {
 
-  const catalog = document.querySelector(".catalog");
-
+  // pegamos a resposta do fetch e armazenamos nessa array
   arrayOfAllProducts = await fetch("https://makeup-api.herokuapp.com/api/v1/products.json").then(r => r.json());
-  arrayOfAllProducts = sortByRating(arrayOfAllProducts)
+  
+  convertEatchPrice(arrayOfAllProducts); //converto o preço de todos os produtos
+  arrayOfAllProducts = sortByRating(arrayOfAllProducts);  //reorganizo a array por rating
+  
+  // ativo a função que captura os eventos que ocorrem em cada campo de consulta
   captureBrandFilterChange();
   captureTypeFilterChange();
   captureSortType();
+  captureWrittenName();
+  // faço uma shallow copy do array recebido, vai ser nessa filtered array que sempre vamos mexer
   filteredArray = [...arrayOfAllProducts];
-  // arrayOfAllProducts.forEach(element => {
-  //   catalog.innerHTML += productItem(element)
-  // });
 
+  console.log("Carreguei a lista") //informamos que está pronto para pesquisa
+  
 }
 
+// crio as variáveis que vão guardar o que ta inscrito nos campos de pesquisa
 let selectedBrand;
 let selectedType;
 let selectedSortType;
+let productName;
+
+// abaixo estão as funções de converter o valor de cada produto e de filtrar e reorganizar a lista de acordo com o filtro selecionado
+function convertEatchPrice(array) {
+  array.forEach(element => {
+    element.price = (parseFloat(element.price) * 5.50).toFixed(2)
+  });
+}
 
 function filterByBrand(array, productBrand){
 return array.filter((p) => {
@@ -136,10 +105,13 @@ function sortByZA(array) {
   })
 }
 
-function calculatePrice(price) {
-  return (parseFloat(price) * 5.50).toFixed(2)
+function findName(array, str) {
+  return array.filter((e) => {
+    return e.name.includes(str)
+  })
 }
 
+// abaixo estão as funções que captam a interação com os filtros de pesquisa e armazenas nas variáveis de filtragem
 
 function captureBrandFilterChange() {
   const filterBrandElement = document.getElementById("filter-brand");
@@ -168,6 +140,15 @@ function captureSortType() {
   })
 }
 
+function captureWrittenName() {
+  const writtenNameElement = document.getElementById("filter-name");
+  writtenNameElement.addEventListener("input", (event) => {
+    productName = event.target.value;
+    filterArray();
+  })
+}
+
+// aqui está a função que é chamada toda vez que um campo de pesquisa é alterado e o console.log nos retorna os produtos que cumprem os requisitos.
 function filterArray() {
   filteredArray = [...arrayOfAllProducts];
   if (selectedBrand !== "todos" && selectedBrand !== undefined) {
@@ -195,14 +176,19 @@ function filterArray() {
       default:
         filteredArray = sortByRating(filteredArray)
     }
-    
+
+       
   }
 
+  if (productName !== "" && productName !== undefined) {
+    filteredArray = findName(filteredArray, productName)
+  }
   console.log(filteredArray)
-  const catalog = document.querySelector(".catalog");
+ 
+  
 
   
 }
 
-
+// aqui onde chamamos a função ao iniciar a página.
 loadAllProducts()

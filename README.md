@@ -1,0 +1,1 @@
+Projeto não está renderizando a lista filtrada na tela pq vai travando o pc.
